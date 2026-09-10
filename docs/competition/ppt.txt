@@ -51,6 +51,9 @@ What it replaces:
 - A content filter that checks words but never checks tool permissions.
 - Waiting for an AI incident after deployment.
 
+Current-tooling position:
+Unlike classifier-only or content-filter-only deployments, including standalone LLM firewall products such as Lakera Guard or Microsoft Prompt Shields, M8 also gates the sensitive tool call itself against parsed user intent. That is why a poisoned document can be allowed for summarisation while still being blocked from authorising lookup_employee.
+
 Proposed commercial model, not yet implemented:
 Annual enterprise licence per tested agent, with an on-premise/private-cloud option for government and regulated organisations. A managed red-team assessment can be offered separately.
 
@@ -113,11 +116,14 @@ Evidence produced:
 - JSON/PDF report and CI gate result.
 
 Beyond the minimum deliverable, also built and working in this prototype:
-- Workflow release gate: after every assessment a pipeline runs automatically - CI gate verdict (fail the release if ASR exceeds a threshold or a critical finding appears), Slack alert and Jira ticket generation (deterministic mock delivery by default, real delivery via environment variables), and regression tracking against the previous baseline run.
+Core pipeline:
 - Adaptive attack engine: a MAP -> BREAK -> FALSIFY loop with 8 mutation strategies (rephrase, obfuscate, translate to Arabic, embed in a document, split across turns, and others) that keeps escalating until it finds a working exploit, then re-verifies it. The generator is blind to the classifier's internals, so its results are a fair test, not train/test leakage.
+- Workflow release gate: after every assessment a pipeline runs automatically - CI gate verdict (fail the release if ASR exceeds a threshold or a critical finding appears), Slack alert and Jira ticket generation (deterministic mock delivery by default, real delivery via environment variables), and regression tracking against the previous baseline run.
 - Supporting ML used in the result path: a 3-tier detection cascade (heuristics -> TF-IDF classifier -> guard), entropy, n-gram similarity and multilingual script checks.
-- Roadmap/auxiliary modules, not claimed as result drivers: Bayesian threshold tuning, PSI drift detection and a LoRA retraining-plan generator.
 - Live tooling: streamed attack-by-attack results over SSE, an agent execution-graph view per turn, and an interactive multilingual injection check panel.
+
+Auxiliary / roadmap:
+- Bayesian threshold tuning, PSI drift detection and a LoRA retraining-plan generator exist as supporting modules, but they are not claimed as drivers of the submitted ASR numbers.
 
 Innovation: multilingual agent security
 Most prompt-injection demonstrations remain English-first. M8 includes six regional-language attacks: Arabic direct injection, Arabic employee-data extraction, Arabizi, mixed Arabic-English input, Arabic SQL-style wording, and Urdu.

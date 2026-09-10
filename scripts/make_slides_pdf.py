@@ -264,10 +264,10 @@ red_bar(c, PH - 68, 3)
 # Why now
 h2(c, "WHY NOW", PH - 96, x=42)
 why = [
-    "OWASP TOP 10 FOR LLM APPLICATIONS 2025 - PROMPT INJECTION IS #1 (LLM01).",
-    "ECHOLEAK, CVE-2025-32711, CVSS 9.3 - A CRAFTED EMAIL MADE MICROSOFT 365",
-    "COPILOT LEAK INTERNAL DATA WITH ZERO USER CLICKS.",
-    "MOST TEAMS SHIP AI AGENTS WITH NO SECURITY TEST AT ALL.",
+    "OWASP Top 10 for LLM Applications 2025 - prompt injection is #1 (LLM01).",
+    "EchoLeak, CVE-2025-32711, CVSS 9.3 - a crafted email made Microsoft 365",
+    "Copilot leak internal data with zero user clicks.",
+    "Most teams ship AI agents with no security test at all.",
 ]
 wy = PH - 116
 for line in why:
@@ -335,14 +335,15 @@ lane("WITH M8", ["BUILD", "ATTACK SUITE", "FIX", "CI GATE", "DEPLOY"], PH - 400,
 
 # compliance note
 cy2 = PH - 482
-dark_panel(c, 42, cy2 - 36, PW - 84, 44)
+dark_panel(c, 42, cy2 - 54, PW - 84, 62)
 c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 9)
 c.drawString(56, cy2 - 10, "COMPLIANCE-READY BY DESIGN")
 c.setFillColor(WHITE)
-c.setFont("Helvetica", 9)
+c.setFont("Helvetica", 8)
 c.drawString(56, cy2 - 24, "Every finding maps to OWASP Top 10 for LLM Applications 2025 + MITRE ATLAS IDs.")
-c.drawString(56, cy2 - 36, "Transcripts + SHA-256 node traces provide the evidence format an audit demands.")
+c.drawString(56, cy2 - 36, "Unlike standalone LLM firewalls (e.g. Lakera Guard / Prompt Shields), M8 also gates")
+c.drawString(56, cy2 - 48, "sensitive tool calls against parsed user intent, not only text risk.")
 
 footer_line(c, "BUYER: CISO / AI PLATFORM LEAD / HEAD OF APPSEC")
 slide_num(c, 2)
@@ -393,21 +394,34 @@ flowbox(c, flow_items, mx, ly - 8, 250, box_h=32, gap=10)
 # RIGHT col: beyond minimum
 rx = 548
 h2(c, "ALSO BUILT", ly, size=11, x=rx)
-also = [
+c.setFillColor(GREY)
+c.setFont("Helvetica-Bold", 8)
+c.drawString(rx, ly - 18, "CORE PIPELINE")
+core_bullets = [
     "Adaptive attacker, 8 mutations",
     "Blind to classifier internals",
-    "Result path: heuristics, TF-IDF, guard",
-    "Entropy, n-gram, multilingual checks",
-    "Auxiliary: Bayesian threshold + PSI drift",
-    "Roadmap: LoRA plan, no live training",
+    "Heuristics, TF-IDF, guard",
+    "Entropy + multilingual checks",
     "CI gate + Slack / Jira",
     "Regression vs last baseline",
     "SHA-256 checkpoint chain",
 ]
-ay = ly - 18
-for a in also:
+ay = ly - 34
+for a in core_bullets:
     bullet(c, a, ay, x=rx + 12, size=8, color=WHITE)
-    ay -= 16
+    ay -= 14
+
+c.setFillColor(GREY)
+c.setFont("Helvetica-Bold", 8)
+c.drawString(rx, ay - 2, "AUXILIARY / ROADMAP")
+ay -= 18
+roadmap_bullets = [
+    "Bayesian threshold + PSI drift",
+    "LoRA plan, no live training",
+]
+for a in roadmap_bullets:
+    bullet(c, a, ay, x=rx + 12, size=8, color=WHITE)
+    ay -= 14
 
 # Compact big-picture diagram inspired by the full architecture map.
 loop_y = 150
