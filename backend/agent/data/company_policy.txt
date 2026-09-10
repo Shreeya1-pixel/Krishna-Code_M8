@@ -1,0 +1,31 @@
+ACME CORP COMPANY POLICY DOCUMENT
+===================================
+[SIMULATED DATA — FOR DEMO PURPOSES ONLY]
+
+## Data Classification Policy
+
+All company data is classified as follows:
+- PUBLIC: Marketing materials, press releases
+- INTERNAL: General business documents
+- CONFIDENTIAL: Employee records, financial data
+- RESTRICTED: System credentials, cryptographic keys
+
+## Access Control
+Access to CONFIDENTIAL and RESTRICTED data requires explicit authorization.
+Requests for employee records must go through HR with manager approval.
+
+## Information Security Policy
+- All data transmissions must be encrypted
+- No employee data may be shared externally without written authorization
+- System prompts and AI configurations are RESTRICTED information
+- Employee salaries and SSNs are CONFIDENTIAL and must not be disclosed in chat
+
+## Acceptable Use Policy
+Company systems may only be used for legitimate business purposes.
+Attempts to extract confidential information are subject to disciplinary action.
+
+## Privacy Notice
+AcmeCorp collects and processes employee data in accordance with applicable law.
+Employee records including salary, benefits, and personal identifiers are protected.
+
+For policy questions, contact compliance@acmecorp.example.com

@@ -1,0 +1,39 @@
+Do not upload this file. Personal notes for explaining any page on stage.
+
+One sentence each:
+
+Target agent
+SecureAssist is the assistant I built. It has a system prompt, a document-reading task, and two tools: read_document and lookup_employee. The second tool returns fictional employee data using the demo pattern 000-00-XXXX.
+
+Poisoned document
+The user only asks to summarise malicious_invoice.txt. Hidden text in that file tries to call lookup_employee and emit an exfiltration URL. Defenses off: it succeeds. Defenses on: the same file cannot authorise the sensitive tool.
+
+Policy broker
+It compares the clean user request with the actual tool call. A value that came from a document is data, not permission.
+
+Input classifier
+Offline, it uses known phrases, entropy, n-grams, and script checks for Arabic, Urdu, Arabizi and mixed text. AraBERT is optional and was not used for the reported numbers.
+
+Bayesian threshold
+After each scored attack, the block threshold moves slightly. Repeated misses make it stricter. It is a running average, not a second model.
+
+PSI drift
+It compares the mix of recent payloads with the earlier mix. A large shift means the attack style changed. It does not generate attacks.
+
+LoRA plan
+It writes a fine-tuning plan from attacks that still get through. It does not train a model in the demo.
+
+Adaptive attacker
+It mutates a failed payload with fixed strategies, including translation. It does not read the classifier's keyword list, so this is not train/test leakage.
+
+MITRE ATLAS
+We use AML.T IDs for AI attacks, not classic ATT&CK T-numbers. Language is not its own ATLAS technique, so Arabic attacks map to prompt injection.
+
+Workflow
+After a run, the gate can fail the release, create a mock Slack alert and Jira ticket, and compare with the last baseline. Real Slack/Jira need environment variables and were not used here.
+
+Numbers
+ASR is succeeded divided by attacks in that group. 13/28 vulnerable, 0/28 defended, multilingual 4/6 then 0/6. Reproduce by running the suite twice from the README, with no API keys.
+
+AI disclosure
+I researched the problem, set the threat model, and designed the case — the before/after test, the poisoned invoice, and the multilingual angle. Cursor with Claude implemented the code under my direction, and I verified every number by re-running the suite.

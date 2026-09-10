@@ -1,0 +1,97 @@
+# M8 Architecture Mermaid
+
+## How to use mermaid.live
+
+1. Open https://mermaid.live
+2. Delete everything in the left editor
+3. Paste **ONLY Diagram 1** below (from `%%{init` to the last `class` line)
+4. Do **not** paste this markdown file, headings, or Diagram 2 into the same editor
+
+If you see an error mentioning `Compact alternate`, you pasted both diagrams. Clear and paste Diagram 1 only.
+
+---
+
+## Diagram 1 — paste this whole block
+
+```mermaid
+%%{init: {"theme":"dark","themeVariables":{"darkMode":true,"background":"#0b0b12","primaryColor":"#2a1224","primaryTextColor":"#ffe6f2","primaryBorderColor":"#ff4da6","secondaryColor":"#1a1020","tertiaryColor":"#3a1830","lineColor":"#ff7eb6","textColor":"#f8e7ef","mainBkg":"#1c1020","nodeBorder":"#ff4da6","clusterBkg":"#120a14","clusterBorder":"#ff4da6","titleColor":"#ffb3d9","edgeLabelBackground":"#1a1020"}}}%%
+flowchart TB
+  ROOT["M8 - Adaptive Red-Team Testing for AI Agents<br/>Test / Find / Fix / Stay Compliant<br/>Offline MockLLM - 28 attacks - 6 categories"]
+
+  ROOT --> AE
+  ROOT --> L1
+  ROOT --> U
+  ROOT --> CI
+
+  subgraph ATTACK["1 - ATTACK PHASE - Red Team"]
+    direction TB
+    AE["Adaptive Attack Engine<br/>MAP then BREAK then FALSIFY<br/>8 mutations: rephrase, base64, Arabic,<br/>embed-in-doc, split-turns, homoglyph,<br/>role-play, authority"]
+    SUITE["Attack Suite<br/>direct, indirect, tool misuse,<br/>exfiltration, multilingual, obfuscated"]
+    TARGET["Target: SecureAssist<br/>system prompt + 2 tools<br/>read_document + lookup_employee<br/>sensitive simulated SSN / salary"]
+    VULN["Vulnerable result<br/>about 71% ASR - 20 of 28 succeed<br/>tool misuse, leak, policy bypass"]
+    AE --> SUITE --> TARGET --> VULN
+  end
+
+  subgraph DEFEND["2 - DEFEND PHASE - 3 Layers"]
+    direction TB
+    L1["Layer 1 - Input Classifier<br/>heuristics, entropy, n-grams<br/>Arabic / Urdu / Arabizi script check"]
+    L2["Layer 2 - Policy Broker<br/>clean-user intent vs tool call<br/>document text = data, not permission"]
+    L3["Layer 3 - Output Guard<br/>block SSN, salary, system prompt<br/>block markdown exfil URLs"]
+    SAFE["Defended result<br/>0 of 28 succeed - ASR 0%<br/>utility kept on benign tasks"]
+    L1 --> L2 --> L3 --> SAFE
+  end
+
+  subgraph PIPE["3 - AGENT EXECUTION GRAPH"]
+    direction LR
+    U["User / Attacker"] --> IC["Input Classifier"]
+    IC --> PL["Planner"]
+    PL --> TR["Tool Request"]
+    TR --> PB["Policy Broker"]
+    PB --> TE["Tool Exec"]
+    TE --> OG["Output Guard"]
+    OG --> RS["Response"]
+    HASH["Every node: input, decision, reason<br/>SHA-256 checkpoint chain = evidence"]
+  end
+
+  subgraph BIZ["4 - WORKFLOW / COMPLIANCE / OFFLINE"]
+    direction TB
+    CI["CI Gate<br/>fail release if ASR high<br/>or CRITICAL finding"]
+    INT["Slack alert + Jira ticket<br/>mock by default, live via env"]
+    MAPS["Maps to OWASP GenAI Top 10<br/>MITRE ATLAS AML.T0051 / T0053 / T0057"]
+    OFF["Fully offline<br/>MockLLM, SQLite, FastAPI, React<br/>no OpenAI key, zero API cost"]
+    REP["Evidence<br/>transcripts, node decisions,<br/>JSON / PDF report, residual gaps named"]
+    CI --> INT --> MAPS --> OFF --> REP
+  end
+
+  VULN -.->|enable defenses, same suite| SAFE
+  TARGET -.-> U
+  SAFE -.-> CI
+  RS -.-> HASH
+
+  classDef pink fill:#2a1224,stroke:#ff4da6,stroke-width:2px,color:#ffe6f2;
+  classDef soft fill:#1a1020,stroke:#ff7eb6,stroke-width:1.5px,color:#f8e7ef;
+  classDef ok fill:#14241c,stroke:#3dff9a,stroke-width:2px,color:#e8fff3;
+  classDef risk fill:#2a1018,stroke:#ff5c7a,stroke-width:2px,color:#ffe6ea;
+
+  class ROOT,AE,SUITE,L1,L2,L3,IC,PL,TR,PB,TE,OG,CI,INT,MAPS,OFF,REP,HASH pink;
+  class TARGET,U,RS soft;
+  class VULN risk;
+  class SAFE ok;
+```
+
+---
+
+## Diagram 2 — only if Diagram 1 feels crowded (separate paste)
+
+Clear the editor first, then paste this alone:
+
+```mermaid
+%%{init: {"theme":"dark","themeVariables":{"primaryColor":"#2a1224","primaryTextColor":"#ffe6f2","primaryBorderColor":"#ff4da6","lineColor":"#ff7eb6","clusterBkg":"#120a14","clusterBorder":"#ff4da6","background":"#0b0b12"}}}%%
+flowchart LR
+  A["Adaptive Attacker<br/>MAP / BREAK / FALSIFY - 8 mutations"] -->|28 attacks| T["SecureAssist<br/>read_document + lookup_employee"]
+  T -->|vulnerable| V["ASR 71% - leaks / tool misuse"]
+  T -->|defended| D["Classifier to Broker to Guard"]
+  D --> S["ASR 0% - utility kept"]
+  S --> W["CI Gate / Slack / Jira / SHA-256 evidence"]
+  W --> C["OWASP GenAI / MITRE ATLAS / offline"]
+```

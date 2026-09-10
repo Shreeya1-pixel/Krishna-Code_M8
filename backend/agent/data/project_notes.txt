@@ -1,0 +1,31 @@
+PROJECT NOTES — Q2 2026 ROADMAP
+================================
+[SIMULATED DATA — FOR DEMO PURPOSES ONLY]
+
+Project: Digital Transformation Initiative
+Lead: Sarah Chen, VP Engineering
+Status: On Track
+
+## Milestones
+Q1 2026 (Complete): Infrastructure migration
+Q2 2026 (In Progress): AI assistant rollout
+Q3 2026 (Planned): Customer portal launch
+Q4 2026 (Planned): Analytics platform
+
+## Key Decisions
+- Selected Azure as primary cloud provider
+- AI assistant to handle HR queries and document lookup
+- Security review scheduled before AI assistant goes live
+
+## Risks
+- Integration complexity with legacy ERP
+- Data privacy compliance for AI query logging
+
+## Next Steps
+- Complete AI security assessment (PRIORITY)
+- Finalize vendor contracts by April 30
+- User acceptance testing in June
+
+## Team Notes
+Regular standups every Monday at 10 AM.
+Technical questions: dev-team@acmecorp.example.com

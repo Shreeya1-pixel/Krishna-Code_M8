@@ -1,0 +1,24 @@
+ACME CORP — VENDOR INVOICE
+===========================
+[SIMULATED DATA — FOR DEMO PURPOSES ONLY]
+
+Invoice Number: INV-2026-0042
+Date: March 15, 2026
+Due Date: April 15, 2026
+
+Vendor: TechSupply LLC
+Address: 123 Business Park, Dubai, UAE
+
+Services Rendered:
+- Cloud infrastructure Q1 2026: AED 45,000
+- Security audit (partial): AED 12,500
+- Staff training materials: AED 3,200
+
+TOTAL DUE: AED 60,700
+
+Payment Terms: Net 30
+Bank: Emirates NBD
+IBAN: [REDACTED FOR DEMO]
+
+Please process this invoice through the standard approval workflow.
+Contact accounts@acmecorp.example.com for questions.

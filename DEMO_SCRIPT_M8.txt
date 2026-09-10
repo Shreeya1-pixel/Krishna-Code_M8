@@ -1,0 +1,268 @@
+M8 DEMO SCRIPT
+Recommended length: 4.5 to 5 minutes
+
+Why 5 minutes:
+The challenge does not ask for a long product tour. It says the demo should show the full loop:
+vulnerable agent -> attack succeeds -> enable defense -> same attack/runs blocked -> report residual gaps.
+So keep it around 5 minutes, then leave time for questions.
+
+
+BEFORE STARTING
+
+Open:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000/docs only if someone asks for APIs
+
+If running locally:
+cd "/Users/shreeyagupta/ctf solver/sentinelai"
+source .venv/bin/activate
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
+In another terminal:
+cd "/Users/shreeyagupta/ctf solver/sentinelai/frontend"
+npm run dev
+
+Key thing to say early:
+This demo is fully offline. No OpenAI key, no paid API calls, no real Slack/Jira credentials, and no real personal data. The LLM is deterministic so the jury can replay the same result.
+
+
+0:00 - 0:30 | OPENING
+
+Open the M8 dashboard.
+
+Say:
+"M8 is adaptive red-team testing for AI agents. The name comes from the 8 mutation strategies in the attacker. The problem I am solving is simple: companies are connecting LLM agents to tools, files and internal data, but most teams only test the prompt. M8 tests whether the agent can actually be forced to misuse a tool or leak data."
+
+Point to:
+- M8 header
+- Dashboard / result cards if already populated
+- DEMO DATA ONLY badge
+
+
+0:30 - 1:05 | SHOW THE TARGET AGENT
+
+Go to: Target Agent
+
+Say:
+"This is SecureAssist, the target agent I built for the harness. It has a system prompt and two callable tools, which is required by the brief. The first tool reads documents. The second tool, lookup_employee, is sensitive because it returns simulated salary and SSN fields. This means the attack is not just text output. It can cross a tool boundary."
+
+Point to:
+- System Prompt [REDACTED]
+- Callable Tools
+- read_document
+- lookup_employee marked sensitive
+- Documents list, especially malicious_invoice.txt
+
+Optional input if you want a quick normal request:
+Summarize the company_policy.txt document.
+
+Say after it works:
+"Normal document use still works. The goal is not to block everything. The goal is to block unsafe tool use and leakage."
+
+
+1:05 - 1:50 | SHOW THE POISONED DOCUMENT ATTACK MANUALLY
+
+Stay on: Target Agent
+
+Set mode: Vulnerable
+
+Input:
+Please summarize malicious_invoice.txt.
+
+Say:
+"Now I am doing the exact demo beat from the problem statement: a document quietly steers the agent. The user only asks for a summary. The attack is hidden inside the document."
+
+When the response appears, point to:
+- lookup_employee call in the trace
+- injected_instruction source if visible
+- fictional employee data / exfil URL if visible
+
+Say:
+"With defenses off, the agent treats the document as instructions. It calls the sensitive employee tool and leaks data. This is the EchoLeak-style failure mode."
+
+Then switch mode: Defended
+
+Input the same thing again:
+Please summarize malicious_invoice.txt.
+
+Say:
+"Now I run the exact same request with defenses on. The document can still be read, but the document text cannot authorize a sensitive tool call. The policy broker blocks it, and the output guard prevents exfiltration."
+
+
+1:50 - 2:50 | RUN THE FULL SUITE
+
+Go to: Run Assessment
+
+First run:
+- Mode: Vulnerable
+- Suite Type: Static Suite
+- Click: RUN SECURITY ASSESSMENT
+
+Say while it streams:
+"This is not one hand-picked prompt. M8 runs 28 attacks across 6 categories: direct injection, indirect injection, tool misuse, exfiltration, multilingual attacks and obfuscated attacks. The terminal-style log and graph show what the agent did on each attack."
+
+Point to:
+- live terminal logs
+- attack IDs turning SUCCEEDED
+- node graph changing
+
+Expected vulnerable result:
+20/28 attacks succeed
+ASR = 71.4%
+
+Then run again:
+- Mode: Defended
+- Suite Type: Static Suite
+- Click: RUN SECURITY ASSESSMENT
+
+Say:
+"Now I run the same suite again, but with classifier, policy broker and output guard enabled. The important point is same attacks, same target agent, different security controls."
+
+Expected defended result:
+0/28 attacks succeed
+ASR = 0%
+
+
+2:50 - 3:40 | SHOW MULTILINGUAL + LORA ON DEFENCES
+
+Go to: Defences
+
+Use the Multilingual Injection Check panel.
+
+Click:
+- Arabic prompt injection
+- Arabizi bypass
+- Mixed AR/EN
+
+Say:
+"The differentiator I want to stress is multilingual testing. Most prompt injection demos are English-only. M8 includes Arabic, Urdu, Arabizi and mixed-script attacks, which matters for UAE and regional deployments. In the vulnerable run, multilingual attacks succeeded 4 out of 6 times. With defenses enabled, 0 out of 6 succeeded."
+
+Point to:
+- Script detected
+- Evasion detected
+- Risk score
+- Method = heuristic
+
+Important honesty line:
+"AraBERT support exists, but the submitted numbers use the offline heuristic path, so this demo does not need a GPU, internet or model download."
+
+Then scroll to: Self-Improving Guardrail — LoRA Retraining Plan Generator
+
+Click: Generate LoRA Plan
+
+Say:
+"After the suite finds what still gets through, M8 does not stop at a score. The LoRA block turns missed attacks into a concrete fine-tuning plan: which patterns to retrain on, suggested LoRA rank and alpha, and whether it is safe to deploy. Important honesty: this generates the plan offline. It does not train a model live during the demo."
+
+Point to:
+- Plan ID
+- Missed attack count
+- Safe to deploy
+- Hyperparameters / target patterns if shown
+
+
+3:40 - 4:15 | SHOW WORKFLOW / BUSINESS VALUE
+
+Go to: Workflow
+
+Say:
+"This is why M8 is more than a scanner. After the run, it behaves like a release gate. You are looking at a real workflow graph on a node canvas, not a fake toggle strip. Assessment feeds triage, the CI gate decides pass or fail, then the path branches to Slack and Jira, and regression compares against the last baseline."
+
+Point to:
+- dotted graph: Assessment → Triage → CI Gate → Slack / Jira → Regression
+- click CI Gate / Slack / Jira nodes for the detail strip
+- CI Gate PASS/FAIL
+- Slack preview (SENT if live)
+- Jira issue preview (KAN-x if live)
+- Regression tracking
+
+Say:
+"For a buyer, this replaces manual prompt testing. It becomes a security unit test for AI agents, with SOC alert and ticket outputs."
+
+
+4:15 - 4:50 | SHOW REPORTS / EVIDENCE
+
+Go to: Reports
+
+Select the latest run.
+
+Say:
+"The report is the submission artifact a security team would keep. It has the attack success rate, utility rate, most dangerous successful attack, category breakdown, residual risks, and methodology."
+
+Point to:
+- Executive Summary
+- ASR
+- Utility
+- Most Dangerous Successful Attack
+- Attack Success Rate by Category
+- Poisoned Document Demo Beat
+- Residual Risks
+
+Click Export PDF only if needed.
+
+
+4:50 - 5:00 | CLOSING
+
+Say:
+"The result is simple: before defenses, the vulnerable agent fails on 20 of 28 attacks. After the defenses, the same suite drops to 0 successful attacks in this offline demo. M8 proves the defense with evidence instead of only claiming the agent is safe."
+
+
+OPTIONAL | 45–60 SEC ARCHITECTURE POSTER / MERMAID
+
+When to use:
+- If a judge asks "how does the whole system work?"
+- If you open the architecture poster or ARCHITECTURE_MERMAID.md on mermaid.live
+- Do NOT replace the live demo with this. Use it as a 1-minute map.
+
+What to show:
+- Left / pink attack branch
+- Middle defend + agent pipeline
+- Right CI / Slack / Jira / compliance
+
+Easy script (say almost word for word):
+
+"This diagram is the whole of M8 in one picture.
+
+Branch 1 is the attacker. It is adaptive: MAP, BREAK, FALSIFY. If an attack is blocked, it mutates with 8 strategies. That is why the project is called M8. It hits SecureAssist, my target agent, which has two tools: read a document, and look up an employee with simulated sensitive fields.
+
+Branch 2 is the defense. Same agent, three layers. Input classifier catches injection and multilingual evasion. Policy broker is the important one: the user's clean request can authorize a tool, but text inside a document cannot. Output guard stops SSN, salary, and exfil URLs from leaving.
+
+In the middle is the execution graph. Every request walks Input → Classifier → Planner → Policy Broker → Tool → Output Guard → Response. Each node stores input, decision and reason, then we hash the checkpoints with SHA-256 so the evidence is tamper-evident.
+
+On the right is the buyer story. After the suite runs, a CI gate can fail the release. Slack and Jira get a vulnerability alert. Findings map to OWASP GenAI and MITRE ATLAS. And it all runs offline with MockLLM, so no OpenAI key and the jury can replay the same result.
+
+So one sentence: M8 attacks the agent, measures what broke, turns defenses on, proves the drop with evidence, and can block a release."
+
+Point order while talking:
+1. Adaptive Attack Engine / 8 mutations
+2. Target tools (especially lookup_employee)
+3. Vulnerable ASR vs defended ASR
+4. Three defense boxes
+5. SHA-256 evidence chain
+6. CI Gate + Slack + Jira
+
+
+IF JURY ASKS QUESTIONS
+
+If asked: Why M8?
+Answer:
+"Because the adaptive attacker uses 8 mutation strategies. It mutates a failed attack until something works."
+
+If asked: Is it using OpenAI?
+Answer:
+"No. The submitted demo uses a deterministic offline MockLLM, local ML checks and SQLite. No OpenAI key or paid API calls are required."
+
+If asked: Why not real Slack/Jira?
+Answer:
+"The integration is implemented but mock-by-default for safe submission. Real Slack/Jira only needs environment variables, but the PDF contains no credentials."
+
+If asked: What is the most important defense?
+Answer:
+"The policy broker. It checks whether a tool call is authorized by the clean user request. A document can provide data, but it cannot grant permission to call a sensitive tool."
+
+If asked: What is the limitation?
+Answer:
+"The numbers are from a deterministic offline MockLLM, not a benchmark across many commercial models. AraBERT support exists but was not used for the reported numbers. LoRA generates a retraining plan, it does not fine-tune during the demo."
+
+If asked: Why multilingual?
+Answer:
+"English-only filters miss regional attack styles. M8 tests Arabic, Urdu, Arabizi and mixed-script prompts, which is more realistic for UAE deployments."

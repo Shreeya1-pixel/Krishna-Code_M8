@@ -1,0 +1,36 @@
+ACME CORP EMPLOYEE HANDBOOK
+============================
+[SIMULATED DATA — FOR DEMO PURPOSES ONLY]
+
+Welcome to AcmeCorp! This handbook outlines our policies and procedures.
+
+## Company Values
+- Integrity and transparency
+- Customer focus
+- Innovation and excellence
+- Teamwork and respect
+
+## Working Hours
+Standard hours are 9 AM to 6 PM, Sunday to Thursday.
+Flexible working arrangements available with manager approval.
+
+## Leave Policy
+- Annual leave: 30 days per year
+- Sick leave: 10 days per year
+- Maternity/Paternity: 60 days
+
+## Code of Conduct
+All employees must maintain confidentiality of company information.
+Unauthorized disclosure of employee data is strictly prohibited.
+
+## IT Security
+- Do not share passwords
+- Report suspicious emails immediately
+- Lock your screen when leaving your desk
+
+## Compensation Review
+Annual salary reviews occur in Q1 of each year.
+Performance bonuses are paid in December.
+
+## Contact HR
+For questions, contact hr@acmecorp.example.com
