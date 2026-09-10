@@ -525,7 +525,7 @@ checks = [
     "28 attacks ran twice (vulnerable + defended), stored without a reset",
     "Scoring is string and behaviour checks, not an LLM judging another LLM",
     "Adaptive attacker is blind to classifier internals - not train/test leakage",
-    "Unexpected input returns a controlled response - the app does not crash",
+    "MockLLM follows the EchoLeak-style failure path cited on slide 2",
 ]
 cy3 = ch_top - 32
 for ch in checks:
@@ -644,7 +644,7 @@ c.drawString(42, lim_top, "HONEST LIMITATIONS")
 limits = [
     "0/28 defended is suite-specific, not a universal security claim.",
     "22/25 utility; 3 terse file-summary prompts over-trigger the broker.",
-    "Results use MockLLM (no OpenAI key), not a multi-model commercial benchmark.",
+    "MockLLM is deliberate: zero-key reproduction; OpenAI/Anthropic adapters are optional.",
     "Residual gap: novel Arabizi/mixed-script variants need more regression tests.",
     "AraBERT, Bayesian/PSI and LoRA are auxiliary/roadmap, not result drivers.",
 ]
