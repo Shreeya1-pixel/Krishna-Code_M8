@@ -197,8 +197,32 @@ async def run_assessment(req: RunRequest):
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+        },
     )
+
+
+@app.post("/assessment/run-sync")
+async def run_assessment_sync(req: RunRequest):
+    """Non-streaming fallback for browsers/proxies that break SSE fetch streams."""
+    run_id = str(uuid.uuid4())
+    events: List[Dict[str, Any]] = []
+    async for raw in _stream_assessment(run_id, req.mode, req.suite_type, req.defense_config):
+        # raw is "event: X\ndata: {...}\n\n"
+        event_type = "message"
+        data: Any = {}
+        for line in raw.strip().split("\n"):
+            if line.startswith("event:"):
+                event_type = line[6:].strip()
+            elif line.startswith("data:"):
+                try:
+                    data = json.loads(line[5:].strip())
+                except Exception:
+                    data = {"raw": line[5:].strip()}
+        events.append({"type": event_type, "data": data})
+    return {"run_id": run_id, "events": events}
 
 
 async def _stream_assessment(

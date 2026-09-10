@@ -107,7 +107,8 @@ function Layout({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="border-t border-blue-100 bg-white/45 p-4 text-xs text-gray-500">
             <div className="font-semibold text-gray-700">SCD 2026 · v1.0.0</div>
-            <div className="mt-1">Offline demo ready</div>
+            <div className="mt-1">MockLLM · no OpenAI key</div>
+            <div className="mt-0.5 text-[10px] text-gray-400">App must be running (deploy or local)</div>
             <div className="mt-2 h-1 overflow-hidden rounded bg-blue-100">
               <div className="h-full bg-[#005bb5]" style={{ width: '18%' }} />
             </div>

@@ -78,6 +78,36 @@ def slide_num(c, n):
     c.drawRightString(PW - 22, 16, f"M8 | SCD 2026  |  {n}/5")
 
 
+def clickable_link(c, label, url, x, y, label_size=10, url_size=9):
+    """Draw LABEL + underlined URL and make the URL clickable in PDF readers."""
+    c.setFillColor(RED)
+    c.setFont("Helvetica-Bold", label_size)
+    c.drawString(x, y, label)
+    lx = x + c.stringWidth(label, "Helvetica-Bold", label_size) + 10
+    display = url
+    c.setFillColor(HexColor("#7EC8FF"))
+    c.setFont("Helvetica", url_size)
+    # shrink display if needed
+    max_w = PW - lx - 42
+    while c.stringWidth(display, "Helvetica", url_size) > max_w and len(display) > 24:
+        display = display[:-5] + "..."
+    c.drawString(lx, y, display)
+    tw = c.stringWidth(display, "Helvetica", url_size)
+    c.setStrokeColor(HexColor("#7EC8FF"))
+    c.setLineWidth(0.7)
+    c.line(lx, y - 2, lx + tw, y - 2)
+    # clickable hit area (label + url)
+    c.linkURL(url, (x, y - 4, lx + tw + 2, y + label_size + 2), relative=0)
+    return y
+
+
+LINKS = [
+    ("GITHUB", "https://github.com/Shreeya1-pixel/Krishna-Code_M8"),
+    ("LIVE DEMO", "https://m8-production.up.railway.app"),
+    ("DEMO VIDEO", "https://drive.google.com/drive/folders/13tLa7W50sy59S7NuOr_yD9TA_PDz_Tyr?usp=sharing"),
+]
+
+
 def footer_line(c, text):
     c.setFillColor(GREY)
     c.setFont("Helvetica-Oblique", 8)
@@ -208,9 +238,19 @@ for pill in pills:
     c.drawString(px + 8, py + 5, pill)
     px += tw + 8
 
+# Clickable project links (GitHub / live deploy / demo video)
+dark_panel(c, 42, 48, PW - 84, 78)
+c.setFillColor(RED)
+c.setFont("Helvetica-Bold", 11)
+c.drawString(56, 108, "PROJECT LINKS  (CLICKABLE)")
+ly = 88
+for label, url in LINKS:
+    clickable_link(c, label, url, 56, ly, label_size=10, url_size=9)
+    ly -= 16
+
 c.setFillColor(GREY)
 c.setFont("Helvetica-Oblique", 8)
-c.drawString(42, 16, "SCHOOL OF CYBER DEFENSE 2026  |  SIMULATED DATA ONLY  |  OFFLINE ML DEMO  |  NO OPENAI KEY / NO API COST")
+c.drawString(42, 16, "SCD 2026  |  SIMULATED DATA  |  NO OPENAI KEY (MockLLM)  |  USE LIVE DEPLOY OR RUN LOCALLY")
 slide_num(c, 1)
 
 
@@ -224,7 +264,7 @@ red_bar(c, PH - 68, 3)
 # Why now
 h2(c, "WHY NOW", PH - 96, x=42)
 why = [
-    "OWASP GENAI LLM TOP 10 2026 - PROMPT INJECTION IS #1 (LLM01).",
+    "OWASP TOP 10 FOR LLM APPLICATIONS 2025 - PROMPT INJECTION IS #1 (LLM01).",
     "ECHOLEAK, CVE-2025-32711, CVSS 9.3 - A CRAFTED EMAIL MADE MICROSOFT 365",
     "COPILOT LEAK INTERNAL DATA WITH ZERO USER CLICKS.",
     "MOST TEAMS SHIP AI AGENTS WITH NO SECURITY TEST AT ALL.",
@@ -301,7 +341,7 @@ c.setFont("Helvetica-Bold", 9)
 c.drawString(56, cy2 - 10, "COMPLIANCE-READY BY DESIGN")
 c.setFillColor(WHITE)
 c.setFont("Helvetica", 9)
-c.drawString(56, cy2 - 24, "Every finding maps to OWASP GenAI LLM Top 10 2026 + MITRE ATLAS IDs.")
+c.drawString(56, cy2 - 24, "Every finding maps to OWASP Top 10 for LLM Applications 2025 + MITRE ATLAS IDs.")
 c.drawString(56, cy2 - 36, "Transcripts + SHA-256 node traces provide the evidence format an audit demands.")
 
 footer_line(c, "BUYER: CISO / AI PLATFORM LEAD / HEAD OF APPSEC")
@@ -410,7 +450,7 @@ c.setFillColor(GREY)
 c.setFont("Helvetica-Bold", 9)
 c.drawString(56, my + 6, "VULNERABLE: 4/6 SUCCEEDED (66.7%)     DEFENDED: 0/6 SUCCEEDED (0%)")
 
-footer_line(c, "FULLY OFFLINE ML DEMO - NO OPENAI KEY - NO API COST - DETERMINISTIC RESULTS")
+footer_line(c, "NO OPENAI KEY (MockLLM) - ZERO LLM API COST - RUN VIA LIVE DEPLOY OR LOCAL SERVER")
 slide_num(c, 3)
 
 
@@ -599,7 +639,7 @@ c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 10)
 c.drawString(42, lim_top, "HONEST LIMITATIONS")
 limits = [
-    "Results use the offline MockLLM, not commercial models.",
+    "Results use MockLLM (no OpenAI key), not commercial models. App runs via deploy or local server.",
     "AraBERT exists but was not used for these numbers.",
     "Slack / Jira is mock by default. Real delivery needs environment variables.",
     "LoRA writes a fine-tuning plan. It does not train a model.",
@@ -610,17 +650,31 @@ for lim in limits:
     ly2 -= 13
 
 diff_top = ly2 - 10
-dark_panel(c, 42, 28, PW - 84, 42)
+# Links bar + differentiator
+dark_panel(c, 42, 28, PW - 84, 58)
 c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 9)
-c.drawString(56, 54, "WHAT MAKES M8 DIFFERENT")
+c.drawString(56, 70, "PROJECT LINKS  (CLICKABLE)")
+lx = 56
+# compact row of three clickable labels
+for i, (label, url) in enumerate(LINKS):
+    c.setFillColor(HexColor("#7EC8FF"))
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(lx, 54, label)
+    tw = c.stringWidth(label, "Helvetica-Bold", 9)
+    c.setStrokeColor(HexColor("#7EC8FF"))
+    c.setLineWidth(0.7)
+    c.line(lx, 52, lx + tw, 52)
+    c.linkURL(url, (lx, 50, lx + tw + 2, 64), relative=0)
+    lx += tw + 28
 c.setFillColor(WHITE)
 c.setFont("Helvetica", 8)
-c.drawString(56, 40, "Arabic, Urdu and Arabizi attacks that English-only filters miss, plus an adaptive attacker")
-c.drawString(56, 30, "that mutates payloads until something breaks, plus a CI gate that opens a ticket and an alert.")
+c.drawString(56, 36, "GitHub source · Live Railway deploy · Demo video folder")
 
-footer_line(c, "CVE-2025-32711  |  OWASP GENAI LLM TOP 10 2026  |  MITRE ATLAS: AML.T0051 · T0053 · T0057 · T0024 · T0043")
+footer_line(c, "CVE-2025-32711  |  OWASP TOP 10 FOR LLM APPLICATIONS 2025  |  MITRE ATLAS: AML.T0051 · T0053 · T0057 · T0024 · T0043")
 slide_num(c, 5)
+
+# Keep submission PDF at exactly 5 pages (SCD limit). Architecture diagram stays in docs/.
 
 c.save()
 print(f"PDF saved → {OUT}")

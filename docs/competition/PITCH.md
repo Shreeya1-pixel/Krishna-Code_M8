@@ -21,7 +21,7 @@ They tell you a prompt is risky. They don't prove your agent's **tools and permi
 
 ## Why it's technically credible (not a hackathon toy)
 - **State-of-the-art defense, not an allow-list.** The policy broker uses dual-graph authorization-vs-provenance and argument-level trust contracts — the 2026 research approach (AuthGraph, PACT) that cuts indirect-injection success from ~40% to ~1% without killing task utility.
-- **Real ML detector,** ported from a prior production system: a 3-tier cascade (heuristics/entropy → distilBERT with CPU fallback → LLM guard), n-gram similarity, an adaptive Bayesian block-threshold that learns from feedback, PSI drift detection, and a LoRA retraining-plan generator for a future self-improving guardrail.
+- **Real ML detector:** a 3-tier cascade (heuristics/entropy → TF-IDF / optional distilBERT with CPU fallback → guard), n-gram similarity, an adaptive Bayesian block-threshold that learns from feedback, PSI drift detection, and a LoRA retraining-plan generator for a future self-improving guardrail.
 - **Research-grade metrics:** we report Attack Success Rate *and* Utility together (the AgentDojo/InjecAgent security-utility tradeoff), so our before/after is comparable to named systems, not a bare percentage.
 - **Region-relevant:** Arabic/Arabizi/mixed-script injection detection, which English-only tools miss.
 

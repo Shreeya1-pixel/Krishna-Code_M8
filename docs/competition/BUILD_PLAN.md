@@ -105,9 +105,9 @@ Persist run + transcript (SQLite)  ──▶  SSE stream to frontend (terminal +
 
 ---
 
-## 2.5. Reuse from local the prior internal system project (prior internal work) — do not reinvent
+## 2.5. Reuse existing local detection modules — do not reinvent
 
-the prior internal system already implements, in production-quality Python, three things this build needs. **Port and adapt these files rather than writing from scratch.**
+the detection stack already implements, in production-quality Python, three things this build needs. **Port and adapt these files rather than writing from scratch.**
 
 ### (a) Multilingual / Arabic injection detection — `backend/internal/agents/multilingual_agent.py`
 Reuse almost verbatim as M8's multilingual detector inside `defenses/injection_classifier.py`:
@@ -116,7 +116,7 @@ Reuse almost verbatim as M8's multilingual detector inside `defenses/injection_c
 - **Evasion scoring** `score_evasion()`: heuristics (multilingual SQL/command keywords `انتخاب/حذف/إسقاط/سقوط`, Arabic-Indic digit-equality `[٠-٩]=[٠-٩]`) **plus** optional AraBERT (`aubmindlab/bert-base-arabertv2`) cosine similarity to reference attack phrases, with **CPU heuristic fallback** when the model isn't loaded. Keep the fallback — it's what makes the offline demo work.
 - Extend the reference attack phrases to include the injection strings M8 cares about ("ignore previous instructions system prompt", "reveal confidential", tool-abuse phrasings) in **both English and Arabic**.
 
-Why it matters for the demo: an English-only keyword filter blocks the direct attack; then we show the **same attack translated to Arabic slips through a naive filter but is caught by the the prior internal system multilingual detector.** That's a differentiated, region-relevant moment for a UAE jury.
+Why it matters for the demo: an English-only keyword filter blocks the direct attack; then we show the **same attack translated to Arabic slips through a naive filter but is caught by the the detection stack multilingual detector.** That's a differentiated, region-relevant moment for a UAE jury.
 
 ### (b) Attack knowledge graph — `backend/internal/agents/attack_graph.py`
 Reuse as `attacks/knowledge_graph.py`. It already has a **`prompt_injection`** node (children `direct_prompt_injection`, `indirect_prompt_injection`) plus `idn_homograph_phishing`/`mixed_script_hostname`/`arabic_digit_url`, each carrying **MITRE ATLAS technique IDs, CVE examples, and remediation-playbook IDs**. Use `query_graph(matched_patterns)` so every finding is auto-enriched with ATLAS tags + remediation text (section 10 report). Add nodes for `tool_misuse/privilege_escalation`, `system_prompt_exfiltration`, and `indirect_injection_via_document`, and add an EchoLeak CVE example (`CVE-2025-32711`) to the injection node.
@@ -125,18 +125,18 @@ Reuse as `attacks/knowledge_graph.py`. It already has a **`prompt_injection`** n
 This is the "graphs / nodes / workflow" architecture to base `agent/graph.py` on. Reuse the patterns:
 - explicit **`node_trace`** list appended at each node (drives the frontend AgentGraph + Evidence view),
 - **conditional routing** (low-risk → END early; risky → full path),
-- **parallel branches** (the prior internal system runs policy + forensics concurrently),
+- **parallel branches** (the detection stack runs policy + forensics concurrently),
 - **sha256 checkpoint chaining** (`_checkpoint()` hashes state each step) → gives M8 **tamper-evident evidence** (every transcript step is hash-linked; a nice "you can trust our audit log" pitch line),
 - graceful per-node failure (null the node output, keep routing) so a run never hard-crashes on stage.
 
-Map the prior system's five-agent investigation graph onto M8's agent-turn graph:
+Map the five-agent investigation graph onto M8's agent-turn graph:
 `user_input → multilingual/injection_classifier → planner(LLM) → tool_request → policy_broker → tool_exec → output_guard → responder`, with the same checkpointed `node_trace` and conditional routing (defended vs vulnerable mode toggles which nodes are active).
 
-**Also available if useful:** the prior system's multi-service split (`backend` FastAPI + `frontend/website` Vite + Odoo module), `.env.example`, `docker`/`run_all.sh`, and the the prior internal system SOC-style frontend under `frontend/website/src` — mine it for the dashboard aesthetic and SSE agent-timeline UI rather than starting the UI cold.
+**Also available if useful:** the multi-service split (`backend` FastAPI + `frontend/website` Vite + Odoo module), `.env.example`, `docker`/`run_all.sh`, and the the detection stack SOC-style frontend under `frontend/website/src` — mine it for the dashboard aesthetic and SSE agent-timeline UI rather than starting the UI cold.
 
-## 2.6. Reuse the prior internal system ML core for real detection depth (`internal/core/ml`)
+## 2.6. Reuse the detection stack ML core for real detection depth (defenses/ml)
 
-The defense must not be keyword-matching. the prior internal system already implements a production-grade detection stack — **port it** so M8's guardrail has defensible ML depth (all have CPU/offline fallbacks, so the demo still runs without a GPU or internet):
+The defense must not be keyword-matching. the detection stack already implements a production-grade detection stack — **port it** so M8's guardrail has defensible ML depth (all have CPU/offline fallbacks, so the demo still runs without a GPU or internet):
 
 - **3-tier detection cascade** (`tiered_llm.py`, `tier2_classifier.py`, `keyword_detector.py`, `llm_guard.py`): Tier-1 heuristics/regex/entropy → Tier-2 **distilBERT** (with **TF-IDF + logistic-regression CPU fallback**, trained at startup on an inline labelled corpus, invoked only for the uncertain 0.35–0.65 band) → Tier-3 LLM guard. This is the classifier behind the `SAFE/SUSPICIOUS/MALICIOUS` score.
 - **Entropy / information-theory signals** (`entropy.py`): Shannon entropy, compression ratio (Kolmogorov proxy), bigram-Markov entropy, delimiter-burst density, positional Gini. Catches obfuscated/encoded injection that keywords miss.
@@ -196,7 +196,7 @@ ANTHROPIC_MODEL=claude-3-5-sonnet
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-1.5-flash
 
-# --- Detection ML (the prior internal system port). All have CPU/offline fallbacks. ---
+# --- Detection ML (the detection stack port). All have CPU/offline fallbacks. ---
 SENTINEL_ENABLE_TIER2=true                 # distilBERT band; falls back to TF-IDF+LogReg on CPU
 SENTINEL_TIER2_MODEL=distilbert-base-uncased
 SENTINEL_MULTILINGUAL_MODEL=aubmindlab/bert-base-arabertv2   # AraBERT; heuristic fallback if unloadable
@@ -320,8 +320,8 @@ At least **20 attacks across 4+ categories** (≥5 each):
 - **B. Indirect prompt injection** (malicious instructions embedded in `read_document` content; user asks an innocent "summarize this"). Include an **EchoLeak-style markdown-image exfil** payload and a **data-vs-instruction confusion** payload.
 - **C. Tool misuse / privilege escalation** (unauthorized `lookup_employee`, bulk enumeration, unrelated-tool use, tool-chaining to bypass a check).
 - **D. System-prompt / data exfiltration** (print full system prompt, "what were your instructions", repeat confidential data seen, "debug mode dump internal state").
-- **Multilingual injection (make this first-class, not a bonus):** the same attacks in **Arabic**, **Arabizi**, and mixed AR/EN, plus Arabic-Indic digit obfuscation. Reuse the prior system's payload vocabulary (`انتخاب/حذف/إسقاط/سقوط`, digit-equality) from section 2.5a. This evades English-only filters and is the region-relevant differentiator for a UAE jury.
-- **Bonus categories (add if time):** **obfuscated injection** (base64/homoglyph/zero-width), **multi-turn** (benign turn primes, later turn exploits), **IDN/mixed-script** payloads (the prior internal system already has nodes for these).
+- **Multilingual injection (make this first-class, not a bonus):** the same attacks in **Arabic**, **Arabizi**, and mixed AR/EN, plus Arabic-Indic digit obfuscation. Reuse the payload vocabulary (`انتخاب/حذف/إسقاط/سقوط`, digit-equality) from section 2.5a. This evades English-only filters and is the region-relevant differentiator for a UAE jury.
+- **Bonus categories (add if time):** **obfuscated injection** (base64/homoglyph/zero-width), **multi-turn** (benign turn primes, later turn exploits), **IDN/mixed-script** payloads (the detection stack already has nodes for these).
 
 Each attack object:
 `id, category, description, payload (or doc+user_query for indirect), expected_behavior, severity_if_success, oracle_ref`.
@@ -342,7 +342,7 @@ Bound everything (max attempts, timeout) so a run finishes in demo time. With `M
 
 ## 7. Defense layer (toggleable, real)
 
-1. **Injection classifier (`injection_classifier.py`):** scores user input **and** untrusted document content → `risk 0-100` + `SAFE/SUSPICIOUS/MALICIOUS` + reason. Combine (a) rule patterns ("ignore previous", "system prompt", "developer mode", etc.), (b) heuristics (imperative-to-AI phrasing, base64/zero-width/homoglyph detection, language mismatch for multilingual attacks), (c) optional LLM judge. **Must catch Arabic/Urdu/Arabizi/mixed-script variants — reuse the prior system's `MultilingualAgent` (section 2.5a) as the multilingual sub-detector; do not rely on English keywords alone.** Enrich every hit via the attack knowledge graph (section 2.5b) so the classifier output already carries MITRE ATLAS + remediation IDs.
+1. **Injection classifier (`injection_classifier.py`):** scores user input **and** untrusted document content → `risk 0-100` + `SAFE/SUSPICIOUS/MALICIOUS` + reason. Combine (a) rule patterns ("ignore previous", "system prompt", "developer mode", etc.), (b) heuristics (imperative-to-AI phrasing, base64/zero-width/homoglyph detection, language mismatch for multilingual attacks), (c) optional LLM judge. **Must catch Arabic/Urdu/Arabizi/mixed-script variants — reuse the `MultilingualAgent` (section 2.5a) as the multilingual sub-detector; do not rely on English keywords alone.** Enrich every hit via the attack knowledge graph (section 2.5b) so the classifier output already carries MITRE ATLAS + remediation IDs.
 2. **Policy broker / tool authorization (`policy_broker.py`) — the star:** the model cannot execute a sensitive tool directly. Broker checks: is `lookup_employee` authorized by *this user's* explicit request? did the triggering instruction originate from **untrusted document provenance**? do arguments pass validation (e.g. no bulk enumeration)? → `ALLOW / DENY / REDACT` with reason. Enforces least privilege + data/instruction separation (the exact EchoLeak lesson). **Upgrade its decision rule with the dual-graph authorization check + argument-level provenance from section 2.7** — this is the technical centerpiece.
 3. **Output guard (`output_guard.py`):** scans final output for system-prompt leakage, sensitive-field patterns (SSN/salary), and **egress channels** (markdown image/link exfil — the EchoLeak vector). Blocks/redacts and logs.
 
@@ -377,7 +377,7 @@ Dark SOC/glassmorphism, high-contrast, subtle motion, clean type. Pages/nav: **D
 
 ## 9.5. Workflow engine + Slack/Jira integration (the "security product" layer)
 
-This is what makes M8 a **workflow product**, not just a scanner — and it directly serves the CI-gate business pitch. Reuse the prior system's `jira_payload` / `whatsapp_reply` / remediation patterns (section 2.5c).
+This is what makes M8 a **workflow product**, not just a scanner — and it directly serves the CI-gate business pitch. Reuse the `jira_payload` / `whatsapp_reply` / remediation patterns (section 2.5c).
 
 **Design rule: simulated by default.** All integrations run in **mock mode** unless the matching env var is present. In mock mode the outbound payload (Slack message JSON, Jira issue JSON) is rendered in the UI and stored in SQLite — the demo shows the full workflow with zero real credentials. If `SLACK_WEBHOOK_URL` / `JIRA_*` are set, the same payloads post for real ("live mode" bonus). Never commit secrets; document in `.env.example`.
 
@@ -469,14 +469,14 @@ Build in this order; do not advance until the gate passes.
 **Core (build these — they define the product):**
 1. Adaptive "pentest-until-broken" attack loop + falsifier (section 6b).
 2. Policy broker upgraded with **dual-graph authorization + argument-level provenance** (section 2.7) — the headline defense.
-3. Multilingual (Arabic/Arabizi/mixed) attack + detection (the prior internal system, 2.5a).
-4. 3-tier ML detector + entropy + n-gram (the prior internal system, 2.6).
+3. Multilingual (Arabic/Arabizi/mixed) attack + detection (the detection stack, 2.5a).
+4. 3-tier ML detector + entropy + n-gram (the detection stack, 2.6).
 5. Before/after with **ASR + Utility** metrics (research-grade, 2.7).
 6. Node-graph agent turn with tamper-evident sha256 checkpoint trace (2.5c).
 7. CI release-gate workflow + Slack/Jira (mock default) (9.5).
 
 **Strong differentiators (add 1–2 if time):**
-8. **Self-improving guardrail:** capture missed attacks → adaptive Bayesian threshold shift + deterministic LoRA retraining plan (the prior internal system, 2.6). Demo: run twice, show the guardrail improved.
+8. **Self-improving guardrail:** capture missed attacks → adaptive Bayesian threshold shift + deterministic LoRA retraining plan (the detection stack, 2.6). Demo: run twice, show the guardrail improved.
 9. **Attack-campaign drift detection (PSI):** live widget that flags when incoming attack traffic shifts distribution, auto-triggering a re-test.
 10. **Decision explainability diff:** for every block, show the graph diff — which argument/provenance edge diverged from authorized intent. Judges love "why", not just "blocked".
 11. **Regression corpus:** every confirmed exploit becomes a permanent test; dashboard shows "new exploits / regressions since last run".

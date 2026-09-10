@@ -20,7 +20,12 @@ Visual:
 Vulnerable Agent -> Automated Attacks -> Evidence and Score -> Enable Defenses -> Re-run
 
 Footer:
-Validated in deterministic offline ML demo mode. No OpenAI key, no API cost, no external services. All employee records and documents are simulated.
+No OpenAI key and zero LLM API cost (deterministic MockLLM). M8 is a web app: use the live deployment or run backend + frontend locally. All employee records and documents are simulated.
+
+PROJECT LINKS (clickable in the PDF):
+- GitHub: https://github.com/Shreeya1-pixel/Krishna-Code_M8
+- Live deployment: https://m8-production.up.railway.app
+- Demo video: https://drive.google.com/drive/folders/13tLa7W50sy59S7NuOr_yD9TA_PDz_Tyr?usp=sharing
 
 
 SLIDE 2 - PROJECT OBJECTIVE AND BUSINESS PROBLEM
@@ -149,8 +154,8 @@ DEFENSES ON - B-001 BLOCKED
 3. The output guard detects the exfiltration URL and stops the response.
 4. The stored node trace shows where and why the request was blocked.
 
-Fully offline by design:
-The entire validated demo runs with no internet connection, no OpenAI key, no paid API calls and no external services - a deterministic offline LLM, local ML checks, a local SQLite store and mock Slack/Jira delivery. This makes the demo repeatable on stage and matches how a government or air-gapped environment would actually deploy it.
+Fully offline LLM APIs by design:
+The validated numbers use a deterministic MockLLM — no OpenAI key, no paid LLM API calls. Multilingual detection uses local heuristics (AraBERT optional, not used for these numbers). SQLite is local. Slack/Jira stay mock unless you set env vars. The product itself is a web app: judges should use the live deployment link, or run backend + frontend from the GitHub README.
 
 How the prototype was checked:
 - 25 automated tests passed.

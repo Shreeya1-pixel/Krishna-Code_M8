@@ -3,8 +3,9 @@
  */
 
 const BASE =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? '' : 'http://localhost:8000');
+  import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+    ? import.meta.env.VITE_API_URL
+    : (import.meta.env.PROD ? '' : 'http://localhost:8000');
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -209,46 +210,93 @@ export function startAssessment(
   onError: (e: Error) => void,
 ): () => void {
   const controller = new AbortController();
+  let finished = false;
+
+  const finish = () => {
+    if (finished) return
+    finished = true
+    onDone()
+  }
+
+  const fail = (e: Error) => {
+    if (finished) return
+    finished = true
+    onError(e)
+  }
+
+  const body = JSON.stringify({ mode, suite_type: suiteType })
+
+  const runSyncFallback = async () => {
+    const resp = await fetch(`${BASE}/assessment/run-sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      signal: controller.signal,
+    })
+    if (!resp.ok) throw new Error(`Assessment failed: ${resp.status}`)
+    const payload = await resp.json() as { events?: Array<{ type: string; data: Record<string, unknown> }> }
+    for (const ev of payload.events || []) {
+      onEvent({ type: ev.type, data: ev.data || {} })
+    }
+    finish()
+  }
 
   fetch(`${BASE}/assessment/run`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
-    body: JSON.stringify({ mode, suite_type: suiteType }),
+    body,
     signal: controller.signal,
   }).then(async (resp) => {
-    if (!resp.ok || !resp.body) {
-      onError(new Error(`Assessment failed: ${resp.status}`));
-      return;
+    if (!resp.ok) {
+      // Prefer sync fallback on proxy/browser stream failures
+      await runSyncFallback()
+      return
     }
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let currentEvent = 'message';
+    if (!resp.body) {
+      await runSyncFallback()
+      return
+    }
+    const reader = resp.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let currentEvent = 'message'
+    let sawEvent = false
 
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
 
       for (const line of lines) {
         if (line.startsWith('event:')) {
-          currentEvent = line.slice(6).trim();
+          currentEvent = line.slice(6).trim()
         } else if (line.startsWith('data:')) {
           try {
-            const data = JSON.parse(line.slice(5).trim());
-            onEvent({ type: currentEvent, data });
-            if (currentEvent === 'done') onDone();
-          } catch {}
-          currentEvent = 'message';
+            const data = JSON.parse(line.slice(5).trim())
+            sawEvent = true
+            onEvent({ type: currentEvent, data })
+            if (currentEvent === 'done') finish()
+          } catch { /* ignore partial JSON */ }
+          currentEvent = 'message'
         }
       }
     }
-    onDone();
-  }).catch((e) => {
-    if (e.name !== 'AbortError') onError(e);
-  });
+    if (!sawEvent) {
+      await runSyncFallback()
+      return
+    }
+    finish()
+  }).catch(async (e) => {
+    if (e?.name === 'AbortError') return
+    try {
+      // Safari often surfaces stream breaks as TypeError: Load failed
+      await runSyncFallback()
+    } catch (e2) {
+      fail(e2 instanceof Error ? e2 : new Error(String(e2 || e)))
+    }
+  })
 
-  return () => controller.abort();
+  return () => controller.abort()
 }

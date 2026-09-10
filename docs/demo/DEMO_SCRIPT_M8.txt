@@ -23,7 +23,7 @@ cd "/Users/shreeyagupta/ctf solver/sentinelai/frontend"
 npm run dev
 
 Key thing to say early:
-This demo is fully offline. No OpenAI key, no paid API calls, no real Slack/Jira credentials, and no real personal data. The LLM is deterministic so the jury can replay the same result.
+This demo needs no OpenAI key and incurs zero LLM API cost — the target uses a deterministic MockLLM so results replay. M8 is still a web app: use the live Railway deploy, or run backend + frontend locally from the GitHub README. No real personal data.
 
 
 0:00 - 0:30 | OPENING
