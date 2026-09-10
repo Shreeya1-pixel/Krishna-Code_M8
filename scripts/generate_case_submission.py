@@ -448,7 +448,7 @@ def slide_5(c):
     section_title(c, 5, "Results and conclusions", "Measured on the built offline prototype")
     metric(c, 40, 428, 145, "71.4%", "vulnerable ASR", RED)
     metric(c, 202, 428, 145, "0.0%", "defended ASR", GREEN)
-    metric(c, 364, 428, 145, "100%", "utility: 3/3 benign tasks", BLUE)
+    metric(c, 364, 428, 145, "88%", "utility: 22/25 benign tasks", BLUE)
     metric(c, 526, 428, 145, "13 -> 0", "successful attacks", CYAN)
     metric(c, 688, 428, 112, "25/25", "tests passed", GREEN)
 
@@ -485,7 +485,7 @@ def slide_5(c):
     c.setFont("Helvetica-Oblique", 8)
     paragraph(
         c,
-        "The 100% utility result comes from only three benign smoke tasks. It proves the demo path still works; it is not a production benchmark or a claim of perfect security.",
+        "The 88% utility result comes from 25 benign document/general tasks. It proves normal paths still work while honestly showing residual false positives.",
         520,
         278,
         255,

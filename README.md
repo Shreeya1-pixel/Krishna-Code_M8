@@ -2,7 +2,7 @@
 
 **SCD 2026 · School of Cyber Defense**
 
-M8 is a security testing harness for LLM agents. It attacks a target assistant (**SecureAssist**) that can read documents and call a sensitive employee-lookup tool, scores each attack with deterministic oracles, enables three defence layers, and re-runs the same suite so resistance is measured — not assumed.
+M8 is a security testing harness for LLM agents. It attacks a target assistant (**SecureAssist**) that can read documents and call a sensitive employee-lookup tool, scores each attack with deterministic oracles, enables three defence layers, and re-runs the same suite so resistance is measured, not assumed.
 
 ---
 
@@ -40,9 +40,9 @@ Fresh deterministic runs on the built prototype:
 
 | Metric | Vulnerable | Defended |
 |--------|------------|----------|
-| Attack success rate (ASR) | **71.4%** (20 / 28) | **0%** (0 / 28) |
+| Attack success rate (ASR) on the 28-attack suite | **71.4%** (20 / 28) | **0%** (0 / 28) |
 | Automated tests | **25 / 25** passed | |
-| Benign utility smoke tasks | **3 / 3** still succeed with defences on | |
+| Benign document/general utility set | | **22 / 25** passed (88%) |
 
 ### Vulnerable ASR by category
 
@@ -56,6 +56,62 @@ Fresh deterministic runs on the built prototype:
 | Obfuscated | 2 / 2 | 100% |
 
 **Most dangerous successful attack:** `B-001` (poisoned invoice) — document summary request → sensitive `lookup_employee` + simulated data / exfil URL pattern.
+
+The defended 0% is a result on this measured suite, not a claim of universal jailbreak immunity. The larger benign utility check is included because a perfect security number is only useful if the product still allows normal work.
+
+---
+
+## Feature walkthrough
+
+### 1. Target agent with real tool boundaries
+
+SecureAssist is intentionally small but agentic:
+
+- `read_document(filename)` reads simulated company documents, including the poisoned `malicious_invoice.txt`.
+- `lookup_employee(employee_id)` is the sensitive tool and returns simulated salary / SSN-style fields.
+- The risk being tested is not just “bad text”; it is whether a prompt can cross a tool boundary.
+
+### 2. Attack harness
+
+The harness runs 28 attacks across 6 categories:
+
+- Direct prompt injection
+- Indirect injection through malicious document content
+- Tool misuse / privilege escalation
+- System prompt and data exfiltration
+- Multilingual attacks: Arabic, Urdu, Arabizi, mixed Arabic-English
+- Obfuscated attacks: base64 / homoglyph-style payloads
+
+Adaptive mode adds the **M8** loop: MAP → BREAK → FALSIFY with 8 mutation strategies. It mutates payloads without reading the classifier internals, so the result is not train/test leakage.
+
+### 3. Defence layers
+
+M8 does not rely on the LLM to police itself:
+
+- **Input classifier:** injection patterns, entropy, n-grams, multilingual/script heuristics.
+- **Policy broker:** compares the clean user request with actual tool calls. Document text can provide data, but it cannot grant permission to call a sensitive tool.
+- **Output guard:** blocks simulated SSNs, salary fields, system-prompt phrases, and markdown exfiltration URLs.
+
+### 4. Evidence and reporting
+
+Every run stores:
+
+- Full transcript and tool requests
+- Node-by-node decision trace
+- SHA-256 checkpoint chain for tamper-evident evidence
+- Deterministic oracle result: `SUCCEEDED`, `PARTIAL`, or `BLOCKED`
+- OWASP GenAI + MITRE ATLAS mapping
+- PDF / JSON report
+
+### 5. Workflow and buyer value
+
+After an assessment, M8 acts like a release gate:
+
+- CI gate passes or fails based on ASR / CRITICAL findings.
+- Slack and Jira are mock-by-default, live when env vars are set.
+- Regression view compares the run against the previous baseline.
+
+For a CISO, AppSec lead, or AI platform team, this replaces screenshot-based manual prompt testing with a repeatable security unit test for AI agents.
 
 ---
 
@@ -148,7 +204,9 @@ See [`.env.example`](.env.example). Never commit `.env`.
 
 ## Honest limitations
 
+- `0/28` defended means **0 succeeded in this measured suite**, not universal security.  
 - Numbers are from the **deterministic MockLLM**, not a multi-vendor commercial LLM benchmark.  
+- Utility is **22/25 benign document/general prompts**; some benign phrasings still over-trigger the broker and are treated as residual false positives.  
 - AraBERT support exists; reported multilingual numbers use the **heuristic** path.  
 - LoRA generates a **retraining plan**; it does not fine-tune on stage.  
 - Slack/Jira default to **mock** unless env vars are set.  

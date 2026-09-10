@@ -545,7 +545,7 @@ c.setFont("Helvetica-Bold", 9)
 c.drawString(56, rep_top - 14, "HOW TO REPRODUCE")
 c.setFillColor(WHITE)
 c.setFont("Helvetica", 8)
-c.drawString(56, rep_top - 28, "Start from the README with no OpenAI key or API cost. Run tests, then the 28-attack suite twice. ASR = succeeded / attacks.")
+c.drawString(56, rep_top - 28, "Use the README. Run tests, the 28-attack suite twice, then the 25-task benign utility set.")
 
 # AI disclosure (mandatory) — full panel, matching the case rules
 ai_top = rep_top - 48
@@ -583,9 +583,9 @@ red_bar(c, PH - 68, 3)
 hn_y = PH - 108
 boxes = [
     ("71.4%", "VULNERABLE ASR"),
-    ("0%",    "DEFENDED ASR"),
+    ("0%",    "DEFENDED SUITE ASR"),
     ("25/25", "TESTS PASSED"),
-    ("3/3",   "BENIGN TASKS OK"),
+    ("22/25", "BENIGN UTILITY"),
 ]
 bw2 = (PW - 84 - 3 * 12) / 4
 bx2 = 42
@@ -639,10 +639,11 @@ c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 10)
 c.drawString(42, lim_top, "HONEST LIMITATIONS")
 limits = [
-    "Results use MockLLM (no OpenAI key), not commercial models. App runs via deploy or local server.",
+    "0/28 defended is suite-specific, not a universal security claim.",
+    "22/25 benign utility; some normal phrasings still over-trigger the broker.",
+    "Results use MockLLM (no OpenAI key), not a multi-model commercial benchmark.",
     "AraBERT exists but was not used for these numbers.",
-    "Slack / Jira is mock by default. Real delivery needs environment variables.",
-    "LoRA writes a fine-tuning plan. It does not train a model.",
+    "LoRA writes a fine-tuning plan; it does not train a model live.",
 ]
 ly2 = lim_top - 16
 for lim in limits:

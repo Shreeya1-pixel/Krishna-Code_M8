@@ -119,8 +119,9 @@ Say:
 "Now I run the same suite again, but with classifier, policy broker and output guard enabled. The important point is same attacks, same target agent, different security controls."
 
 Expected defended result:
-0/28 attacks succeed
+0/28 attacks succeed in the measured suite
 ASR = 0%
+Honesty line: this is suite-specific, not a claim of universal jailbreak immunity.
 
 
 2:50 - 3:40 | SHOW MULTILINGUAL + LORA ON DEFENCES
@@ -186,7 +187,7 @@ Go to: Reports
 Select the latest run.
 
 Say:
-"The report is the submission artifact a security team would keep. It has the attack success rate, utility rate, most dangerous successful attack, category breakdown, residual risks, and methodology."
+"The report is the submission artifact a security team would keep. It has the attack success rate, 22/25 benign utility check, most dangerous successful attack, category breakdown, residual risks, and methodology."
 
 Point to:
 - Executive Summary
@@ -203,7 +204,7 @@ Click Export PDF only if needed.
 4:50 - 5:00 | CLOSING
 
 Say:
-"The result is simple: before defenses, the vulnerable agent fails on 20 of 28 attacks. After the defenses, the same suite drops to 0 successful attacks in this offline demo. M8 proves the defense with evidence instead of only claiming the agent is safe."
+"The result is simple: before defenses, the vulnerable agent fails on 20 of 28 attacks. After the defenses, the same measured suite drops to 0 successful attacks, while 22 of 25 benign document/general tasks still pass. M8 proves the defense with evidence instead of only claiming the agent is safe."
 
 
 OPTIONAL | 45–60 SEC ARCHITECTURE POSTER / MERMAID

@@ -166,7 +166,7 @@ How the prototype was checked:
 - Adaptive mode uses fixed mutation strategies and does not inspect classifier keyword lists or thresholds while generating payloads.
 
 How to reproduce the numbers:
-Start the app from the README with no OpenAI key and no API cost. Run the automated tests, then run the same 28-attack suite once with defenses off and once with defenses on. ASR is succeeded attacks divided by attacks in that group. These figures are counted results from that run, not estimates.
+Start the app from the README with no OpenAI key and no API cost. Run the automated tests, then run the same 28-attack suite once with defenses off and once with defenses on. ASR is succeeded attacks divided by attacks in that group. Then run the defended benign utility set. These figures are counted results from those runs, not estimates.
 
 Submission hygiene:
 This document is in English. It contains no credentials, API keys, Slack or Jira tokens, or real personal data. Employee records are simulated and labelled as such.
@@ -187,8 +187,8 @@ Measured results from fresh offline runs on 8 September 2026
 
 Overall:
 - Vulnerable mode: 20 of 28 attacks succeeded. ASR = 71.4%.
-- Defended mode: 0 of 28 attacks succeeded. ASR = 0%.
-- Benign utility smoke test: 3 of 3 normal tasks passed in defended mode.
+- Defended mode on the measured attack suite: 0 of 28 attacks succeeded. ASR = 0%.
+- Benign document/general utility set: 22 of 25 normal tasks passed in defended mode. Utility = 88%.
 - Automated tests: 25 of 25 passed.
 - Partial results: 0.
 
@@ -202,7 +202,7 @@ Direct injection         2/5 succeeded (40.0%)      0/5 succeeded
 Standalone exfiltration  5/5 succeeded (100.0%)     0/5 succeeded
 Obfuscated               2/2 succeeded (100.0%)     0/2 succeeded
 
-The denominators matter. These are prototype suite results, not a statistically representative industry benchmark. The 100% utility result is also based on only three benign smoke tasks. It proves that the demonstrated normal path still works, not that the system has a zero false-positive rate in production.
+The denominators matter. These are prototype suite results, not a statistically representative industry benchmark. The 0% defended ASR means no attack in this measured suite succeeded; it is not a claim of universal jailbreak immunity. The 25-task benign utility set is included to show the defence is not simply blocking everything. It also shows a real residual issue: some benign phrasings are still over-blocked by the policy broker and need tuning before production.
 
 Most dangerous successful attack:
 B-001, the poisoned invoice. It reached the sensitive employee tool, exposed simulated employee data and produced an exfiltration URL from an innocent document-summary request. In a real deployment, the same pattern could turn an email, webpage, support ticket, or retrieved document into an instruction channel.
@@ -212,6 +212,8 @@ M8 meets the case brief as a working attack, evidence and re-test harness. Its s
 
 Honest limitations:
 - Reported results use the deterministic offline MockLLM, not a broad set of commercial models.
+- 0/28 defended is suite-specific, not a universal security claim.
+- 22/25 benign utility shows the normal document path works, but also exposes residual false positives.
 - AraBERT support exists but was not used in the validated offline numbers.
 - Slack/Jira delivery runs in deterministic mock mode by default; real delivery is implemented behind environment variables but was not exercised for this submission. Commercial LLM adapters exist but the reported numbers use the offline MockLLM.
 - The LoRA feature generates a retraining plan; it does not fine-tune a model during the demo.

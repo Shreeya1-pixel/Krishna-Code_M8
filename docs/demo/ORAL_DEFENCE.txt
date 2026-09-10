@@ -33,7 +33,7 @@ Workflow
 After a run, the gate can fail the release, create a mock Slack alert and Jira ticket, and compare with the last baseline. Real Slack/Jira need environment variables and were not used here.
 
 Numbers
-ASR is succeeded divided by attacks in that group. 13/28 vulnerable, 0/28 defended, multilingual 4/6 then 0/6. Reproduce by running the suite twice from the README, with no API keys.
+ASR is succeeded divided by attacks in that group. 20/28 vulnerable, 0/28 defended on the measured suite, multilingual 4/6 then 0/6. Benign utility is 22/25, so I am not claiming zero false positives. Reproduce from the README with no OpenAI key.
 
 AI disclosure
 I researched the problem, set the threat model, and designed the case — the before/after test, the poisoned invoice, and the multilingual angle. Cursor with Claude implemented the code under my direction, and I verified every number by re-running the suite.
