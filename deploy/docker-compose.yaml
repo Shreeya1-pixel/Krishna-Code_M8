@@ -1,0 +1,45 @@
+version: '3.9'
+
+# Run from repo root:
+#   docker compose -f deploy/docker-compose.yaml up --build
+# Or use the root docker-compose.yaml (same layout, contexts ./backend ./frontend).
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+      - sentinel_db:/data
+    environment:
+      - SENTINEL_DB_PATH=/data/sentinel.db
+      - LLM_PROVIDER=${LLM_PROVIDER:-mock}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - JIRA_BASE_URL=${JIRA_BASE_URL:-}
+      - JIRA_USER_EMAIL=${JIRA_USER_EMAIL:-}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN:-}
+      - JIRA_PROJECT_KEY=${JIRA_PROJECT_KEY:-SEC}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  sentinel_db:

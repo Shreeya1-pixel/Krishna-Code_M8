@@ -210,7 +210,7 @@ OPTIONAL | 45–60 SEC ARCHITECTURE POSTER / MERMAID
 
 When to use:
 - If a judge asks "how does the whole system work?"
-- If you open the architecture poster or ARCHITECTURE_MERMAID.md on mermaid.live
+- If you open the architecture poster or docs/architecture/ARCHITECTURE_MERMAID.md on mermaid.live
 - Do NOT replace the live demo with this. Use it as a 1-minute map.
 
 What to show:
