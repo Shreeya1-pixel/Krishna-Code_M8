@@ -266,7 +266,7 @@ h2(c, "WHY NOW", PH - 96, x=42)
 why = [
     "OWASP Top 10 for LLM Applications 2025 - prompt injection is #1 (LLM01).",
     "EchoLeak, CVE-2025-32711, CVSS 9.3 - a crafted email made Microsoft 365",
-    "Copilot leak internal data with zero user clicks.",
+    "Copilot leaked internal data with zero user clicks.",
     "Most teams ship AI agents with no security test at all.",
 ]
 wy = PH - 116
