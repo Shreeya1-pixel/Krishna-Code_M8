@@ -396,10 +396,10 @@ h2(c, "ALSO BUILT", ly, size=11, x=rx)
 also = [
     "Adaptive attacker, 8 mutations",
     "Blind to classifier internals",
-    "3-tier cascade: heuristic, TF-IDF, guard",
-    "Bayesian threshold from results",
-    "PSI drift on payload mix",
-    "LoRA plan only, no live training",
+    "Result path: heuristics, TF-IDF, guard",
+    "Entropy, n-gram, multilingual checks",
+    "Auxiliary: Bayesian threshold + PSI drift",
+    "Roadmap: LoRA plan, no live training",
     "CI gate + Slack / Jira",
     "Regression vs last baseline",
     "SHA-256 checkpoint chain",
@@ -539,16 +539,19 @@ for ch in checks:
 
 # HOW TO REPRODUCE
 rep_top = ch_top - ch_h - 12
-dark_panel(c, 42, rep_top - 36, PW - 84, 36)
+dark_panel(c, 42, rep_top - 44, PW - 84, 44)
 c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 9)
 c.drawString(56, rep_top - 14, "HOW TO REPRODUCE")
 c.setFillColor(WHITE)
 c.setFont("Helvetica", 8)
 c.drawString(56, rep_top - 28, "Use the README. Run tests, the 28-attack suite twice, then the 25-task benign utility set.")
+c.setFillColor(GREY)
+c.setFont("Helvetica", 7)
+c.drawString(56, rep_top - 38, "3 benign false positives: terse document summary phrasings blocked by policy broker intent parsing.")
 
 # AI disclosure (mandatory) — full panel, matching the case rules
-ai_top = rep_top - 48
+ai_top = rep_top - 56
 dark_panel(c, 42, ai_top - 78, PW - 84, 78)
 c.setFillColor(RED)
 c.setFont("Helvetica-Bold", 9)
@@ -640,10 +643,10 @@ c.setFont("Helvetica-Bold", 10)
 c.drawString(42, lim_top, "HONEST LIMITATIONS")
 limits = [
     "0/28 defended is suite-specific, not a universal security claim.",
-    "22/25 benign utility; some normal phrasings still over-trigger the broker.",
+    "22/25 utility; 3 terse file-summary prompts over-trigger the broker.",
     "Results use MockLLM (no OpenAI key), not a multi-model commercial benchmark.",
-    "AraBERT exists but was not used for these numbers.",
-    "LoRA writes a fine-tuning plan; it does not train a model live.",
+    "Residual gap: novel Arabizi/mixed-script variants need more regression tests.",
+    "AraBERT, Bayesian/PSI and LoRA are auxiliary/roadmap, not result drivers.",
 ]
 ly2 = lim_top - 16
 for lim in limits:
