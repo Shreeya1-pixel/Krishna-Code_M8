@@ -2,6 +2,8 @@
 
 **SCD 2026 · School of Cyber Defense**
 
+[![CI](https://github.com/Shreeya1-pixel/Krishna-Code_M8/actions/workflows/ci.yml/badge.svg)](https://github.com/Shreeya1-pixel/Krishna-Code_M8/actions/workflows/ci.yml)
+
 M8 is a security testing harness for LLM agents. It attacks a target assistant (**SecureAssist**) that can read documents and call a sensitive employee-lookup tool, scores each attack with deterministic oracles, enables three defence layers, and re-runs the same suite so resistance is measured, not assumed.
 
 ---
