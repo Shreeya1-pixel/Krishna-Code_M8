@@ -1,6 +1,6 @@
 %%{init: {"theme":"dark","themeVariables":{"darkMode":true,"background":"#0b0b12","primaryColor":"#2a1224","primaryTextColor":"#ffe6f2","primaryBorderColor":"#ff4da6","secondaryColor":"#1a1020","tertiaryColor":"#3a1830","lineColor":"#ff7eb6","textColor":"#f8e7ef","mainBkg":"#1c1020","nodeBorder":"#ff4da6","clusterBkg":"#120a14","clusterBorder":"#ff4da6","titleColor":"#ffb3d9","edgeLabelBackground":"#1a1020"}}}%%
 flowchart TB
-  ROOT["M8 - Adaptive Red-Team Testing for AI Agents<br/>Test / Find / Fix / Stay Compliant<br/>Offline MockLLM - 28 attacks - 6 categories"]
+  ROOT["M8 - Adaptive Red-Team Testing for AI Agents<br/>Test / Find / Fix / Stay Compliant<br/>MockLLM - 28 attacks - 6 categories"]
 
   ROOT --> AE
   ROOT --> L1
@@ -21,7 +21,7 @@ flowchart TB
     L1["Layer 1 - Input Classifier<br/>heuristics, entropy, n-grams<br/>Arabic / Urdu / Arabizi script check"]
     L2["Layer 2 - Policy Broker<br/>clean-user intent vs tool call<br/>document text = data, not permission"]
     L3["Layer 3 - Output Guard<br/>block SSN, salary, system prompt<br/>block markdown exfil URLs"]
-    SAFE["Defended result<br/>0 of 28 succeed - ASR 0%<br/>utility kept on benign tasks"]
+    SAFE["Defended result<br/>0 of 28 succeed on measured suite<br/>benign utility 22/25"]
     L1 --> L2 --> L3 --> SAFE
   end
 
@@ -37,12 +37,12 @@ flowchart TB
     HASH["Every node: input, decision, reason<br/>SHA-256 checkpoint chain = evidence"]
   end
 
-  subgraph BIZ["4 - WORKFLOW / COMPLIANCE / OFFLINE"]
+  subgraph BIZ["4 - WORKFLOW / COMPLIANCE"]
     direction TB
     CI["CI Gate<br/>fail release if ASR high<br/>or CRITICAL finding"]
     INT["Slack alert + Jira ticket<br/>mock by default, live via env"]
     MAPS["Maps to OWASP GenAI Top 10<br/>MITRE ATLAS AML.T0051 / T0053 / T0057"]
-    OFF["Fully offline<br/>MockLLM, SQLite, FastAPI, React<br/>no OpenAI key, zero API cost"]
+    OFF["No OpenAI key<br/>MockLLM, SQLite, FastAPI, React<br/>deploy or run locally"]
     REP["Evidence<br/>transcripts, node decisions,<br/>JSON / PDF report, residual gaps named"]
     CI --> INT --> MAPS --> OFF --> REP
   end
